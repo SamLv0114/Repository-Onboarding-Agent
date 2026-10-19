@@ -11,17 +11,15 @@ A lightweight **working full-stack scaffold** for the team's *Repository Onboard
 
 ## Prerequisites
 
-- Python 3.11+ (3.12 recommended)
-- Node.js 20.19+ or 22.12+ and npm (Vite requirements may change; use a supported Node LTS)
+- Python 3.11+ (3.12 recommended) and uv
+- Node.js 20.19+ or 22.12+ and pnpm (Vite requirements may change; use a supported Node LTS)
 
 ## Run backend
 
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate         # Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install -e '.[dev]'
-uvicorn app.main:app --reload --port 8000
+uv sync
+uv run uvicorn app.main:app --reload --port 8000
 ```
 
 URLs: http://localhost:8000/docs and http://localhost:8000/api/health.
@@ -30,8 +28,8 @@ URLs: http://localhost:8000/docs and http://localhost:8000/api/health.
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Open http://localhost:5173. The Vite dev proxy forwards `/api` calls to `http://localhost:8000`.
@@ -40,14 +38,14 @@ Open http://localhost:5173. The Vite dev proxy forwards `/api` calls to `http://
 
 ```bash
 cd backend
-pytest -q
+uv run pytest -q
 ```
 
 And to verify frontend types/build after dependencies are installed:
 
 ```bash
 cd frontend
-npm run build
+pnpm run build
 ```
 
 ## Current API
