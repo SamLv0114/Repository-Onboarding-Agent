@@ -1,0 +1,295 @@
+# ============================================================
+# 1. Environment Variables / Secrets
+# ============================================================
+
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+*.pem
+*.key
+*.p12
+*.pfx
+
+secrets.json
+credentials.json
+service-account.json
+
+
+# ============================================================
+# 2. Python / FastAPI
+# ============================================================
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+pip-wheel-metadata/
+
+# Python tool caches
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.pyre/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python profiling
+*.prof
+*.pstats
+
+
+# ============================================================
+# 3. TypeScript / React / Vite / Node.js
+# ============================================================
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+.nuxt/
+.output/
+out/
+
+# Vite cache
+.vite/
+node_modules/.vite/
+vite.svg.timestamp-*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Test output
+coverage/
+.nyc_output/
+playwright-report/
+blob-report/
+test-results/
+
+# npm / Yarn / pnpm cache
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+# ============================================================
+# 4. AI Agents / LangGraph / LangChain
+# ============================================================
+
+# LangGraph local runtime
+.langgraph_api/
+
+# Agent logs / traces
+traces/
+*.trace.json
+*.trace.jsonl
+
+# Runtime state
+backend/data/runtime/
+backend/data/generated/
+backend/data/cache/
+
+# Generated architecture memory
+# Keep reference examples and schemas tracked
+backend/data/architecture_memory.json
+
+# Agent-generated output
+outputs/
+artifacts/generated/
+
+# Temporary agent files
+backend/tmp/
+backend/uploads/
+
+
+# ============================================================
+# 5. Vector Databases / Local Storage
+# ============================================================
+
+# Chroma
+chroma/
+chroma_db/
+chroma.sqlite3
+
+# FAISS
+faiss_index/
+*.faiss
+
+# Qdrant
+qdrant_storage/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Redis persistence
+dump.rdb
+appendonly.aof
+
+
+# ============================================================
+# 6. Machine Learning Artifacts
+# ============================================================
+
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+
+# Model caches
+.cache/huggingface/
+models/downloaded/
+
+
+# ============================================================
+# 7. Documentation (LOCAL ONLY)
+# ============================================================
+
+# Keep documentation locally, exclude from GitHub
+/docs/
+
+# Optional local notes
+notes/
+.local-notes/
+
+
+# ============================================================
+# 8. Logs / Temporary Files
+# ============================================================
+
+*.log
+logs/
+
+tmp/
+temp/
+*.tmp
+*.bak
+*.old
+
+.cache/
+
+
+# ============================================================
+# 9. IDE / Editor
+# ============================================================
+
+# JetBrains IDE
+.idea/
+
+# VS Code local settings
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-workspace
+
+
+# ============================================================
+# 10. Operating Systems
+# ============================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.Trash-*
+.nfs*
+
+
+# ============================================================
+# 11. Docker / Deployment
+# ============================================================
+
+# Local Docker overrides
+docker-compose.override.yml
+
+# Terraform state (if infrastructure is added later)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+
+# ============================================================
+# 12. Keep Important Project Files Tracked
+# ============================================================
+
+# Python dependency manifests / lockfiles
+!pyproject.toml
+!uv.lock
+!requirements.txt
+
+# Node dependency manifests / lockfiles
+!package.json
+!package-lock.json
+!pnpm-lock.yaml
+!yarn.lock
+
+# Configuration
+!.editorconfig
+!tsconfig.json
+!vite.config.ts
+!components.json
+
+# Shared JSON schemas and examples
+!shared/schemas/
+
+# Project README
+!README.md
