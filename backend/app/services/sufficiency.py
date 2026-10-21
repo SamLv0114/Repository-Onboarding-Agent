@@ -1,4 +1,3 @@
-
 from app.models.memory import ArchitectureClaim
 from app.models.qa import Citation
 from app.services.retrieval import terms
@@ -25,14 +24,7 @@ def is_memory_sufficient(
         return False
 
     # 4. Extract keywords from the claim
-    claim_terms = terms(
-        " ".join(
-            claim.keywords + [
-                claim.title,
-                claim.text
-            ]
-        )
-    )
+    claim_terms = terms(" ".join(claim.keywords + [claim.title, claim.text]))
 
     # 5. Only if all the keywords from the question
     # appear in the Claim is reuse provisionally permitted.

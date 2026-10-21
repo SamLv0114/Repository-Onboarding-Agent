@@ -1,10 +1,9 @@
-
-from app.models.sufficiency import SufficiencyDecision
 from app.models.qa import Citation
-from app.services.repositories import get_memory
+from app.models.sufficiency import SufficiencyDecision
 from app.services.llm_sufficiency import (
     judge_memory_sufficiency,
 )
+from app.services.repositories import get_memory
 
 
 class FakeJudge:
@@ -34,9 +33,7 @@ def test_insufficient_memory():
         SufficiencyDecision(
             is_sufficient=False,
             reason="Token rotation is not described.",
-            missing_information=[
-                "Refresh token rotation mechanism"
-            ],
+            missing_information=["Refresh token rotation mechanism"],
         )
     )
 

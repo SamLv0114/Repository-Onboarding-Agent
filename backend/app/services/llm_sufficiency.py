@@ -1,4 +1,3 @@
-
 import json
 
 from langchain_openai import ChatOpenAI
@@ -6,7 +5,6 @@ from langchain_openai import ChatOpenAI
 from app.models.memory import ArchitectureClaim
 from app.models.qa import Citation
 from app.models.sufficiency import SufficiencyDecision
-
 
 SYSTEM_PROMPT = """
 You are an evidence sufficiency evaluator
@@ -49,10 +47,7 @@ def judge_memory_sufficiency(
     payload = {
         "question": question,
         "claim": claim.text,
-        "evidence": [
-            citation.model_dump()
-            for citation in citations
-        ],
+        "evidence": [citation.model_dump() for citation in citations],
     }
 
     # Allow a fake judge to be injected for testing
@@ -69,10 +64,12 @@ def judge_memory_sufficiency(
             method="json_schema",
         )
 
-    decision = judge.invoke([
-        ("system", SYSTEM_PROMPT),
-        ("human", json.dumps(payload)),
-    ])
+    decision = judge.invoke(
+        [
+            ("system", SYSTEM_PROMPT),
+            ("human", json.dumps(payload)),
+        ]
+    )
 
     if not isinstance(decision, SufficiencyDecision):
         raise ValueError("Invalid LLM sufficiency response")

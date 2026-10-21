@@ -1,4 +1,5 @@
 from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -14,13 +15,11 @@ class Citation(BaseModel):
     end_line: int
     preview: str
 
+
 # Pydantic Data Model
 class QAResponse(BaseModel):
     repository_id: str = Field(min_length=1)
-    question: str = Field(
-        min_length=3,
-        max_length=2000
-    )
+    question: str = Field(min_length=3, max_length=2000)
     answer: str
     strategy_used: Literal["memory", "live_search", "cold_search", "no_evidence"]
     citations: list[Citation] = Field(default_factory=list)

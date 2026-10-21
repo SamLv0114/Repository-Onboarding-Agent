@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
@@ -21,7 +22,14 @@ def test_repositories_and_memory():
 
 
 def test_memory_first_reuses_valid_claim_with_real_fixture_lines():
-    response = client.post("/api/qa/ask", json={"repository_id":"demo-repo", "question":"Where is authentication implemented?", "strategy":"memory_first"})
+    response = client.post(
+        "/api/qa/ask",
+        json={
+            "repository_id": "demo-repo",
+            "question": "Where is authentication implemented?",
+            "strategy": "memory_first",
+        },
+    )
     assert response.status_code == 200
     body = response.json()
     assert body["strategy_used"] == "memory"
@@ -31,26 +39,47 @@ def test_memory_first_reuses_valid_claim_with_real_fixture_lines():
 
 
 def test_forced_cold_search_bypasses_memory():
-    response = client.post("/api/qa/ask", json={"repository_id":"demo-repo", "question":"Where is authentication implemented?", "strategy":"cold_search"})
+    response = client.post(
+        "/api/qa/ask",
+        json={
+            "repository_id": "demo-repo",
+            "question": "Where is authentication implemented?",
+            "strategy": "cold_search",
+        },
+    )
     assert response.status_code == 200
     assert response.json()["strategy_used"] in {"cold_search", "no_evidence"}
     assert response.json()["matched_claim_ids"] == []
 
 
 def test_missing_memory_searches_source():
-    response = client.post("/api/qa/ask", json={"repository_id":"demo-repo", "question":"Which lines raise PermissionError?"})
+    response = client.post(
+        "/api/qa/ask",
+        json={
+            "repository_id": "demo-repo",
+            "question": "Which lines raise PermissionError?",
+        },
+    )
     assert response.status_code == 200
     assert response.json()["strategy_used"] == "live_search"
     assert any(c["path"] == "src/auth.py" for c in response.json()["citations"])
 
 
 def test_unsupported_repository_rejected():
-    response = client.post("/api/qa/ask", json={"repository_id":"not-a-repo", "question":"Where is authentication implemented?"})
+    response = client.post(
+        "/api/qa/ask",
+        json={
+            "repository_id": "not-a-repo",
+            "question": "Where is authentication implemented?",
+        },
+    )
     assert response.status_code == 404
 
 
 def test_insufficient_question_rejected():
-    response = client.post("/api/qa/ask", json={"repository_id":"demo-repo", "question":"hi"})
+    response = client.post(
+        "/api/qa/ask", json={"repository_id": "demo-repo", "question": "hi"}
+    )
     assert response.status_code == 422
 
 

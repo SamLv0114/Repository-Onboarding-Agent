@@ -1,6 +1,7 @@
 """FastAPI app entrypoint. Start: uvicorn app.main:app --reload."""
 
 import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
