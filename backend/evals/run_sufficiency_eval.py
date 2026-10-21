@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from time import perf_counter
 
@@ -6,11 +5,11 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
 from app.models.sufficiency import SufficiencyDecision
-from app.services.repositories import get_memory
-from app.services.qa import memory_citations
 from app.services.llm_sufficiency import (
     judge_memory_sufficiency,
 )
+from app.services.qa import memory_citations
+from app.services.repositories import get_memory
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -30,10 +29,7 @@ CASES = [
 def main():
     memory = get_memory("demo-repo")
 
-    claim = next(
-        c for c in memory.claims
-        if c.claim_id == "auth-001"
-    )
+    claim = next(c for c in memory.claims if c.claim_id == "auth-001")
 
     citations = memory_citations(claim)
 

@@ -1,30 +1,54 @@
-
 import re
 
 from app.models.memory import (
-    ArchitectureMemory,
     ArchitectureClaim,
+    ArchitectureMemory,
 )
 
 STOP_WORDS = {
-    "a", "an", "the", "is", "are", "was",
-    "what", "which", "where", "when",
-    "how", "who", "why", "do", "does",
-    "in", "on", "at", "for", "to", "of",
-    "and", "or", "it", "this", "that",
-    "can", "you", "me", "my", "code",
-    "repository", "implemented",
-    "implementation", "handled", "handle",
+    "a",
+    "an",
+    "the",
+    "is",
+    "are",
+    "was",
+    "what",
+    "which",
+    "where",
+    "when",
+    "how",
+    "who",
+    "why",
+    "do",
+    "does",
+    "in",
+    "on",
+    "at",
+    "for",
+    "to",
+    "of",
+    "and",
+    "or",
+    "it",
+    "this",
+    "that",
+    "can",
+    "you",
+    "me",
+    "my",
+    "code",
+    "repository",
+    "implemented",
+    "implementation",
+    "handled",
+    "handle",
 }
 
 
 def terms(text: str) -> set[str]:
     return {
         t
-        for t in re.findall(
-            r"[a-zA-Z_][a-zA-Z_0-9]*",
-            text.lower()
-        )
+        for t in re.findall(r"[a-zA-Z_][a-zA-Z_0-9]*", text.lower())
         if len(t) > 2 and t not in STOP_WORDS
     }
 
@@ -39,15 +63,10 @@ def best_memory_claim(
     scored: list[tuple[int, ArchitectureClaim]] = []
 
     for claim in memory.claims:
-
         if claim.status != "valid" or not claim.evidence:
             continue
 
-        key_terms = terms(
-            " ".join(
-                claim.keywords + [claim.title, claim.text]
-            )
-        )
+        key_terms = terms(" ".join(claim.keywords + [claim.title, claim.text]))
 
         score = len(qterms & key_terms)
 

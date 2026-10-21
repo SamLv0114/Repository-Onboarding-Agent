@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from app.models.qa import QARequest, QAResponse
 from app.services.qa import run_qa
 

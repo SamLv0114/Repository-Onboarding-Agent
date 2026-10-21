@@ -1,5 +1,5 @@
+from pydantic import BaseModel, ConfigDict, Field
 
-from pydantic import BaseModel, Field, ConfigDict
 
 # define a pydantic Model, this is the Schema for Data Returned by an LLM
 class SufficiencyDecision(BaseModel):
@@ -7,25 +7,21 @@ class SufficiencyDecision(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     is_sufficient: bool = Field(
-        description=(
-            "Whether the provided evidence fully "
-            "answers the user's question."
-        )
+        description=("Whether the provided evidence fully answers the user's question.")
     )
 
     reason: str = Field(
         description=(
-            "Brief explanation of why the evidence "
-            "is sufficient or insufficient."
+            "Brief explanation of why the evidence is sufficient or insufficient."
         )
     )
 
     missing_information: list[str] = Field(
         description=(
-            "Information missing from the evidence. "
-            "Use an empty list if sufficient."
+            "Information missing from the evidence. Use an empty list if sufficient."
         )
     )
+
 
 # decision = SufficiencyDecision(
 #     is_sufficient=False,

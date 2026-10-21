@@ -1,5 +1,5 @@
-
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
@@ -24,10 +24,7 @@ def test_refresh_token_question_falls_back():
         "/api/qa/ask",
         json={
             "repository_id": "demo-repo",
-            "question": (
-                "How does authentication "
-                "refresh token rotation work?"
-            ),
+            "question": ("How does authentication refresh token rotation work?"),
             "strategy": "memory_first",
         },
     )
