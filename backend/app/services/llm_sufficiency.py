@@ -1,10 +1,9 @@
 import json
 
-from langchain_openai import ChatOpenAI
-
 from app.models.memory import ArchitectureClaim
 from app.models.qa import Citation
 from app.models.sufficiency import SufficiencyDecision
+from app.services.llm import chat_model
 
 SYSTEM_PROMPT = """
 You are an evidence sufficiency evaluator
@@ -52,12 +51,7 @@ def judge_memory_sufficiency(
 
     # Allow a fake judge to be injected for testing
     if judge is None:
-        llm = ChatOpenAI(
-            model="gpt-4.1-mini",
-            temperature=0,
-            timeout=20,
-            max_retries=1,
-        )
+        llm = chat_model(timeout=20, max_retries=1)
         # Require the model to generate output according to the `SufficiencyDecision` schema, and have it parsed by LangChain into the corresponding Pydantic object.
         judge = llm.with_structured_output(
             SufficiencyDecision,

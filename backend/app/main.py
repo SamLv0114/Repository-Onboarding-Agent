@@ -1,4 +1,8 @@
-"""FastAPI app entrypoint. Start: uvicorn app.main:app --reload."""
+"""FastAPI app entrypoint. Start: uvicorn app.main:app --reload --reload-dir app.
+
+Watch only app/: cloned repositories under data/ contain .py files that would
+otherwise trigger a reload and kill running onboarding jobs.
+"""
 
 import os
 

@@ -127,6 +127,8 @@ traces/
 backend/data/runtime/
 backend/data/generated/
 backend/data/cache/
+# Evaluation repositories, cloned by scripts/fetch_repos.py
+backend/data/repos/
 
 # Generated architecture memory
 # Keep reference examples and schemas tracked

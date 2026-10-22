@@ -1,0 +1,13 @@
+{
+  "repositories": [
+    {
+      "repository_id": "requests",
+      "name": "psf/requests v2.32.5",
+      "url": "https://github.com/psf/requests.git",
+      "ref": "v2.32.5",
+      "commit": "b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+      "exclude": ["docs/*", "setup.py"],
+      "note": "Line references in SWE-QA requests.jsonl match this commit."
+    }
+  ]
+}

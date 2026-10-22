@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Activity, BookMarked, Braces, ChevronDown, CircleHelp, Code2, Database, Github, Layers3, LayoutDashboard, Menu, MessageSquareText, PanelLeftClose, ShieldCheck, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AddRepository } from "@/features/AddRepository";
 import { AskAgent } from "@/features/AskAgent";
 import { BenchmarkView } from "@/features/BenchmarkView";
 import { MemoryExplorer } from "@/features/MemoryExplorer";
@@ -23,6 +24,9 @@ function App() {
   const [memoryLoading, setMemoryLoading] = useState(true);
   const [benchmarks, setBenchmarks] = useState<BenchmarkSummary | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [memoryVersion, setMemoryVersion] = useState(0);
+  const refreshRepos = useCallback(() => { client.repositories().then(setRepos).catch(() => {}); }, []);
+  const openRepository = useCallback((repo: Repository) => { setRepositoryId(repo.repository_id); setMemoryVersion(v => v + 1); }, []);
   useEffect(() => {
     let alive = true;
     Promise.allSettled([client.health(), client.repositories(), client.benchmarks()]).then(results => {
@@ -40,7 +44,7 @@ function App() {
       .catch(err => { if (alive) { setMemory(null); setLoadError(err instanceof Error ? err.message : "Cannot load memory"); } })
       .finally(()=> { if (alive) setMemoryLoading(false); });
     return () => { alive = false; };
-  }, [repositoryId]);
+  }, [repositoryId, memoryVersion]);
   const current = navigation.find(n=>n.id===tab)!;
   return <div className="min-h-screen bg-[#0a101c] text-slate-100 lg:flex">
     {mobileMenu && <button type="button" aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/70 lg:hidden" onClick={()=>setMobileMenu(false)} />}
@@ -61,11 +65,12 @@ function App() {
       </header>
       <div className="mx-auto max-w-[1260px] px-5 pb-16 pt-8 sm:px-8 lg:px-10 lg:pt-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="eyebrow mb-3 flex items-center gap-2"><LayoutDashboard className="size-3.5"/> REPOSITORY INTELLIGENCE PLATFORM</p><h2 className="text-3xl font-semibold tracking-tight text-white sm:text-[34px]">{tab === "ask" ? "Understand any codebase." : tab === "memory" ? "Architecture, remembered." : "Measure what matters."}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">{tab === "ask" ? "Ask architecture questions and inspect the source evidence behind every answer." : tab === "memory" ? "Browse the evidence-linked facts preserved during repository onboarding." : "Compare memory-reuse against cold search on a controlled evaluation set."}</p></div>
-          <div className="flex min-w-[222px] items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/50 px-3.5 py-2.5"><Github className="size-4 shrink-0 text-slate-400"/><select aria-label="Selected repository" value={repositoryId} onChange={e=>setRepositoryId(e.target.value)} className="min-w-0 flex-1 appearance-none bg-transparent text-sm text-slate-200 outline-none">{repos.length ? repos.map(r=><option className="bg-slate-900" key={r.repository_id} value={r.repository_id}>{r.name}</option>) : <option className="bg-slate-900" value="demo-repo">Demo Repository</option>}</select><ChevronDown className="size-4 text-slate-500"/></div>
+          <div className="flex min-w-[222px] items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/50 px-3.5 py-2.5"><Github className="size-4 shrink-0 text-slate-400"/><select aria-label="Selected repository" value={repositoryId} onChange={e=>setRepositoryId(e.target.value)} className="min-w-0 flex-1 appearance-none bg-transparent text-sm text-slate-200 outline-none">{repos.length ? repos.map(r=><option className="bg-slate-900" key={r.repository_id} value={r.repository_id}>{r.name}{r.status === "ready" ? "" : ` · ${r.status.replace("_", " ")}`}</option>) : <option className="bg-slate-900" value="demo-repo">Demo Repository</option>}</select><ChevronDown className="size-4 text-slate-500"/></div>
         </div>
+        <AddRepository onChange={refreshRepos} onReady={openRepository}/>
         {loadError && <div role="alert" className="mb-5 rounded-xl border border-amber-900/70 bg-amber-950/20 p-4 text-sm text-amber-200">{loadError}</div>}
-        <div className="mb-6 grid gap-3 sm:grid-cols-3"><div className="stat"><Layers3 className="size-4 text-blue-400"/><div><p className="text-xs text-slate-500">Repository</p><p className="text-sm font-semibold text-slate-200">{repositoryId}</p></div></div><div className="stat"><BookMarked className="size-4 text-emerald-400"/><div><p className="text-xs text-slate-500">Memory claims</p><p className="text-sm font-semibold text-slate-200">{memory?.claims.length ?? "—"} stored</p></div></div><div className="stat"><Code2 className="size-4 text-violet-400"/><div><p className="text-xs text-slate-500">Mode</p><p className="text-sm font-semibold text-slate-200">Deterministic fixture</p></div></div></div>
-        {tab === "ask" ? <AskAgent repositoryId={repositoryId}/> : tab === "memory" ? <MemoryExplorer memory={memory} loading={memoryLoading}/> : <BenchmarkView summary={benchmarks}/>} 
+        <div className="mb-6 grid gap-3 sm:grid-cols-3"><div className="stat"><Layers3 className="size-4 text-blue-400"/><div><p className="text-xs text-slate-500">Repository</p><p className="text-sm font-semibold text-slate-200">{repositoryId}</p></div></div><div className="stat"><BookMarked className="size-4 text-emerald-400"/><div><p className="text-xs text-slate-500">Memory claims</p><p className="text-sm font-semibold text-slate-200">{memory?.claims.length ?? "—"} stored</p></div></div><div className="stat"><Code2 className="size-4 text-violet-400"/><div><p className="text-xs text-slate-500">Snapshot</p><p className="truncate font-mono text-sm font-semibold text-slate-200">{repos.find(r=>r.repository_id===repositoryId)?.snapshot_id.slice(0, 12) || "—"}</p></div></div></div>
+        {tab === "ask" ? <AskAgent repositoryId={repositoryId} memoryAvailable={repos.find(r=>r.repository_id===repositoryId)?.memory_available ?? true}/> : tab === "memory" ? <MemoryExplorer memory={memory} loading={memoryLoading}/> : <BenchmarkView summary={benchmarks}/>} 
         <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-5 text-xs text-slate-600"><p>AMS 691 · Repository Onboarding Agent · Development scaffold</p><p className="flex items-center gap-2"><PanelLeftClose className="size-3.5"/> Designed for explainable, evidence-linked QA</p></footer>
       </div>
     </main>

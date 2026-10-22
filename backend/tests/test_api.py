@@ -88,3 +88,66 @@ def test_benchmark_has_no_fabricated_numbers():
     assert response.status_code == 200
     assert response.json()["available"] is False
     assert response.json()["metrics"] == []
+
+
+def test_agent_engine_serves_graph_answers(monkeypatch):
+    from app.agents import qa_graph
+    from app.api.routes import qa as qa_route
+    from tests.test_qa_graph import CountingSearcher, FakeAnswerGenerator
+
+    graph = qa_graph.build_qa_graph(
+        answer_generator=FakeAnswerGenerator(True), searcher=CountingSearcher()
+    )
+    monkeypatch.setenv("QA_ENGINE", "agent")
+    monkeypatch.setattr(
+        qa_route,
+        "answer_question",
+        lambda request: qa_graph.answer_question(request, graph=graph),
+    )
+
+    response = client.post(
+        "/api/qa/ask",
+        json={
+            "repository_id": "demo-repo",
+            "question": "Where is authentication implemented?",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["strategy_used"] == "memory"
+    assert body["is_demo"] is False
+    assert body["answer_status"] == "answered"
+    assert body["usage"]["tool_calls"] == 0
+
+
+def test_repository_list_includes_pinned_repositories():
+    repos = {r["repository_id"]: r for r in client.get("/api/repositories").json()}
+
+    assert repos["demo-repo"]["memory_available"] is True
+    assert repos["requests"]["snapshot_id"].startswith("b25c87d7")
+
+
+def test_demo_engine_without_memory_searches_code(tmp_path, monkeypatch):
+    from dataclasses import replace
+
+    from app.services import repositories
+
+    monkeypatch.setattr(
+        repositories,
+        "DEMO_REPOSITORY",
+        replace(repositories.DEMO_REPOSITORY, memory_file=tmp_path / "none.json"),
+    )
+
+    response = client.post(
+        "/api/qa/ask",
+        json={
+            "repository_id": "demo-repo",
+            "question": "Which lines raise PermissionError?",
+            "strategy": "memory_first",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["strategy_used"] == "live_search"
+    assert response.json()["note"] is not None
