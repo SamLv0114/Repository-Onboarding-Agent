@@ -1,0 +1,68 @@
+{
+  "repository_id": "demo-repo",
+  "snapshot_id": "demo-snapshot-v1",
+  "claims": [
+    {
+      "claim_id": "auth-001",
+      "title": "Authentication entry point",
+      "text": "The toy repository authenticates users with require_user in src/auth.py, and protected routes call this helper.",
+      "keywords": [
+        "authentication",
+        "auth",
+        "login",
+        "require_user",
+        "protected",
+        "user"
+      ],
+      "status": "valid",
+      "evidence": [
+        {
+          "path": "src/auth.py",
+          "start_line": 4,
+          "end_line": 8
+        },
+        {
+          "path": "src/routes.py",
+          "start_line": 3,
+          "end_line": 7
+        }
+      ]
+    },
+    {
+      "claim_id": "config-001",
+      "title": "Database configuration",
+      "text": "The demo database URL is defined in src/config.py.",
+      "keywords": [
+        "database",
+        "configuration",
+        "sqlite",
+        "database_url"
+      ],
+      "status": "valid",
+      "evidence": [
+        {
+          "path": "src/config.py",
+          "start_line": 3,
+          "end_line": 3
+        }
+      ]
+    },
+    {
+      "claim_id": "stale-example",
+      "title": "Old architecture fact",
+      "text": "A deliberately stale architecture claim should never be reused.",
+      "keywords": [
+        "legacy",
+        "removed"
+      ],
+      "status": "stale",
+      "evidence": [
+        {
+          "path": "src/routes.py",
+          "start_line": 5,
+          "end_line": 5
+        }
+      ]
+    }
+  ]
+}

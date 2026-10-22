@@ -130,7 +130,7 @@ backend/data/cache/
 
 # Generated architecture memory
 # Keep reference examples and schemas tracked
-backend/data/architecture_memory.json
+!backend/data/architecture_memory.json
 
 # Agent-generated output
 outputs/
