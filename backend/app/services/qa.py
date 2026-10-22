@@ -12,7 +12,7 @@ from time import perf_counter
 from dotenv import load_dotenv
 
 from app.models.memory import ArchitectureClaim
-from app.models.qa import Citation, QARequest, QAResponse
+from app.models.qa import NO_MEMORY_NOTE, Citation, QARequest, QAResponse
 from app.services.llm_sufficiency import (
     judge_memory_sufficiency,
 )
@@ -20,6 +20,7 @@ from app.services.repositories import (
     REPO_ROOT,
     get_citation_excerpt,
     get_memory,
+    get_repository,
     list_source_files,
 )
 from app.services.retrieval import best_memory_claim, terms
@@ -29,10 +30,12 @@ load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 logger = logging.getLogger(__name__)
 
 
-def memory_citations(claim: ArchitectureClaim) -> list[Citation]:
+def memory_citations(
+    claim: ArchitectureClaim, root: Path = REPO_ROOT
+) -> list[Citation]:
     citations: list[Citation] = []
     for pointer in claim.evidence:
-        snippet = get_citation_excerpt(pointer)
+        snippet = get_citation_excerpt(pointer, root)
         if snippet is not None:
             citations.append(
                 Citation(
@@ -45,13 +48,15 @@ def memory_citations(claim: ArchitectureClaim) -> list[Citation]:
     return citations
 
 
-def search_repo(question: str, *, max_results: int = 3) -> list[Citation]:
+def search_repo(
+    question: str, root: Path = REPO_ROOT, *, max_results: int = 3
+) -> list[Citation]:
     """Primitive line-based search: only a fallback placeholder, not multi-hop search."""
     qterms = terms(question)
     if not qterms:
         return []
     hits: list[tuple[int, Citation]] = []
-    for path in list_source_files():
+    for path in list_source_files(root):
         try:
             if path.stat().st_size > 100_000:
                 continue
@@ -65,7 +70,7 @@ def search_repo(question: str, *, max_results: int = 3) -> list[Citation]:
                     (
                         score,
                         Citation(
-                            path=path.relative_to(REPO_ROOT).as_posix(),
+                            path=path.relative_to(root).as_posix(),
                             start_line=lineno,
                             end_line=lineno,
                             preview=line.strip(),
@@ -78,11 +83,16 @@ def search_repo(question: str, *, max_results: int = 3) -> list[Citation]:
 
 def run_qa(request: QARequest) -> QAResponse:
     started = perf_counter()
-    memory = get_memory(request.repository_id)
-    if request.strategy == "memory_first":
+    repository = get_repository(request.repository_id)
+    root = repository.root
+    memory_missing = (
+        request.strategy == "memory_first" and not repository.memory_file.is_file()
+    )
+    if request.strategy == "memory_first" and not memory_missing:
+        memory = get_memory(request.repository_id)
         claim = best_memory_claim(request.question, memory)
         if claim is not None:
-            citations = memory_citations(claim)
+            citations = memory_citations(claim, root)
 
             mode = os.getenv("QA_SUFFICIENCY_MODE", "keyword")
 
@@ -124,7 +134,7 @@ def run_qa(request: QARequest) -> QAResponse:
                     elapsed_ms=(perf_counter() - started) * 1000,
                 )
     # Live search
-    citations = search_repo(request.question)
+    citations = search_repo(request.question, root)
     route = "cold_search" if request.strategy == "cold_search" else "live_search"
     if citations:
         answer = "DEMO — repository search found candidate source lines. Review cited snippets; generative QA is not yet implemented."
@@ -138,4 +148,5 @@ def run_qa(request: QARequest) -> QAResponse:
         strategy_used=route,
         citations=citations,
         elapsed_ms=(perf_counter() - started) * 1000,
+        note=NO_MEMORY_NOTE if memory_missing else None,
     )

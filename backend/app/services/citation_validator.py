@@ -1,7 +1,8 @@
+from pathlib import Path
 
 from app.models.answer import AnswerResult
 from app.models.memory import EvidencePointer
-from app.services.repositories import get_citation_excerpt
+from app.services.repositories import REPO_ROOT, get_citation_excerpt
 
 
 def invalid_result() -> AnswerResult:
@@ -14,6 +15,7 @@ def invalid_result() -> AnswerResult:
 
 def validate_source_citations(
     result: AnswerResult,
+    root: Path = REPO_ROOT,
 ) -> AnswerResult:
 
     # No generated answer to validate
@@ -34,7 +36,7 @@ def validate_source_citations(
             )
 
             # Re-read the original source
-            actual_source = get_citation_excerpt(pointer)
+            actual_source = get_citation_excerpt(pointer, root)
 
         except ValueError:
             return invalid_result()

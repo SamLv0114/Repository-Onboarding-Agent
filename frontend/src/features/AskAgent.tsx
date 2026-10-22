@@ -12,7 +12,7 @@ const examples = [
   "Where is database configuration defined?",
 ];
 
-export function AskAgent({ repositoryId }: { repositoryId: string }) {
+export function AskAgent({ repositoryId, memoryAvailable }: { repositoryId: string; memoryAvailable: boolean }) {
   const [question, setQuestion] = useState(examples[0]);
   const [strategy, setStrategy] = useState<Strategy>("memory_first");
   const [response, setResponse] = useState<QAResponse | null>(null);
@@ -46,7 +46,7 @@ export function AskAgent({ repositoryId }: { repositoryId: string }) {
             <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-950/80 p-1.5 border border-slate-800">
               <button type="button" onClick={()=>setStrategy("memory_first")} className={`rounded-lg px-3 py-3 text-left transition-colors ${strategy === "memory_first" ? "bg-slate-800 text-white shadow-sm" : "text-slate-400 hover:text-white"}`}>
                 <span className="flex items-center gap-2 text-sm font-medium"><Database className="size-4"/>Memory first</span>
-                <span className="mt-1 block text-xs text-slate-500">Reuse stored claims</span>
+                <span className={`mt-1 block text-xs ${memoryAvailable ? "text-slate-500" : "text-amber-400/80"}`}>{memoryAvailable ? "Reuse stored claims" : "No memory yet · will search code"}</span>
               </button>
               <button type="button" onClick={()=>setStrategy("cold_search")} className={`rounded-lg px-3 py-3 text-left transition-colors ${strategy === "cold_search" ? "bg-slate-800 text-white shadow-sm" : "text-slate-400 hover:text-white"}`}>
                 <span className="flex items-center gap-2 text-sm font-medium"><Search className="size-4"/>Cold search</span>
@@ -74,10 +74,11 @@ export function AskAgent({ repositoryId }: { repositoryId: string }) {
     </div>
     {response && <Card className="animate-enter overflow-hidden border-slate-700/70">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 px-6 py-4">
-        <div className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-400"/><span className="text-sm font-semibold">Query result</span><Badge className="border-amber-800/60 bg-amber-950/30 text-amber-300">DEMO</Badge></div>
-        <div className="flex items-center gap-3 text-xs text-slate-400"><span className="flex items-center gap-1"><GitFork className="size-3.5"/>{response.strategy_used.replaceAll("_", " ")}</span><span className="flex items-center gap-1"><Clock3 className="size-3.5"/>{response.elapsed_ms.toFixed(1)} ms</span></div>
+        <div className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-400"/><span className="text-sm font-semibold">Query result</span>{response.is_demo && <Badge className="border-amber-800/60 bg-amber-950/30 text-amber-300">DEMO</Badge>}</div>
+        <div className="flex items-center gap-3 text-xs text-slate-400"><span className="flex items-center gap-1"><GitFork className="size-3.5"/>{response.strategy_used.replaceAll("_", " ")}</span><span className="flex items-center gap-1"><Clock3 className="size-3.5"/>{response.elapsed_ms.toFixed(1)} ms</span>{response.usage && <span>{response.usage.llm_calls} LLM calls · {(response.usage.input_tokens + response.usage.output_tokens).toLocaleString()} tokens · {response.usage.tool_calls} tool calls</span>}</div>
       </div>
       <div className="space-y-5 p-6">
+        {response.note && <p className="flex gap-2 rounded-lg border border-amber-900/60 bg-amber-950/20 p-3 text-sm text-amber-200"><TriangleAlert className="mt-0.5 size-4 shrink-0"/>{response.note}</p>}
         <div><p className="eyebrow mb-2">ANSWER</p><p className="text-sm leading-7 text-slate-200">{response.answer}</p></div>
         <div className="space-y-3"><p className="eyebrow">SOURCE EVIDENCE · {response.citations.length} CITATION{response.citations.length === 1 ? "" : "S"}</p>
           {response.citations.length === 0 && <p className="text-sm text-slate-500">No evidence found.</p>}

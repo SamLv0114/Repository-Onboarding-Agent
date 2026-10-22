@@ -1,0 +1,61 @@
+{
+  "memory_first": {
+    "runs": 10,
+    "errors": 0,
+    "routes": {
+      "live_search": 2,
+      "memory": 8
+    },
+    "answered": 10,
+    "file_hit_rate": 0.89,
+    "mean_llm_calls": 2.2,
+    "mean_tool_calls": 0.9,
+    "mean_input_tokens": 3322,
+    "mean_output_tokens": 305,
+    "mean_total_tokens": 3626,
+    "median_latency_s": 1.91,
+    "mean_latency_s": 3.38
+  },
+  "cold_search": {
+    "runs": 10,
+    "errors": 0,
+    "routes": {
+      "cold_search": 10
+    },
+    "answered": 10,
+    "file_hit_rate": 0.89,
+    "mean_llm_calls": 10,
+    "mean_tool_calls": 8.2,
+    "mean_input_tokens": 18064,
+    "mean_output_tokens": 814,
+    "mean_total_tokens": 18878,
+    "median_latency_s": 10.39,
+    "mean_latency_s": 11.44
+  },
+  "build_cost": {
+    "llm_calls": 51,
+    "input_tokens": 188529,
+    "output_tokens": 28991,
+    "model": "gpt-4.1-mini",
+    "elapsed_s": 38.95
+  },
+  "tokens_saved_per_question": 15252,
+  "break_even_questions": 14.3,
+  "repository": "requests",
+  "snapshot_id": "b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+  "model": "gpt-4.1-mini",
+  "question_indices": [
+    2,
+    16,
+    19,
+    22,
+    24,
+    25,
+    26,
+    30,
+    31,
+    32
+  ],
+  "seed": 0,
+  "results_file": "requests-20261022-124045.jsonl"
+}

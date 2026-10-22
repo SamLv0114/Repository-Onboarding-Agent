@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Repository Architecture Memory \u2014 proposed v0.1",
+  "title": "Repository Architecture Memory — proposed v0.2",
   "type": "object",
   "required": [
     "repository_id",
@@ -14,7 +14,41 @@
     },
     "snapshot_id": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "description": "Git commit hash for generated memory; fixtures may use a placeholder"
+    },
+    "build_cost": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "model",
+        "elapsed_s"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "elapsed_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "llm_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "input_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
     },
     "claims": {
       "type": "array",
@@ -46,6 +80,12 @@
               "type": "string"
             }
           },
+          "level": {
+            "enum": [
+              "repository",
+              "file"
+            ]
+          },
           "status": {
             "enum": [
               "valid",
@@ -74,6 +114,14 @@
                 "end_line": {
                   "type": "integer",
                   "minimum": 1
+                },
+                "content_hash": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[0-9a-f]{64}$",
+                  "description": "SHA-256 of the cited lines when the memory was built"
                 }
               },
               "additionalProperties": false

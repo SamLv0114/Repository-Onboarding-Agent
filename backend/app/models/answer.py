@@ -27,4 +27,5 @@ class AnswerResult(BaseModel):
         "answered",
         "insufficient_evidence",
         "invalid_citations",
+        "generation_error",
     ]

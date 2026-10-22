@@ -1,4 +1,6 @@
+import math
 import re
+from collections import Counter
 
 from app.models.memory import (
     ArchitectureClaim,
@@ -53,24 +55,38 @@ def terms(text: str) -> set[str]:
     }
 
 
-def best_memory_claim(
+def claim_terms(claim: ArchitectureClaim) -> set[str]:
+    paths = [pointer.path for pointer in claim.evidence]
+    return terms(" ".join(claim.keywords + [claim.title, claim.text] + paths))
+
+
+def top_memory_claims(
     question: str,
     memory: ArchitectureMemory,
-) -> ArchitectureClaim | None:
+    k: int = 3,
+) -> list[ArchitectureClaim]:
+    """Valid claims ranked by overlap with the question, rarer terms weighing more."""
 
     qterms = terms(question)
 
-    scored: list[tuple[int, ArchitectureClaim]] = []
+    candidates = [
+        (claim, claim_terms(claim))
+        for claim in memory.claims
+        if claim.status == "valid" and claim.evidence
+    ]
 
-    for claim in memory.claims:
-        if claim.status != "valid" or not claim.evidence:
-            continue
+    # Inverse document frequency over claims: a term shared by every claim
+    # (like the package name) says little about which claim is relevant.
+    frequency = Counter(term for _, key_terms in candidates for term in key_terms)
 
-        key_terms = terms(" ".join(claim.keywords + [claim.title, claim.text]))
+    scored: list[tuple[float, ArchitectureClaim]] = []
 
-        score = len(qterms & key_terms)
-
-        if score:
+    for claim, key_terms in candidates:
+        overlap = qterms & key_terms
+        if overlap:
+            score = sum(
+                math.log((len(candidates) + 1) / frequency[term]) for term in overlap
+            )
             scored.append((score, claim))
 
     scored.sort(
@@ -78,4 +94,12 @@ def best_memory_claim(
         reverse=True,
     )
 
-    return scored[0][1] if scored else None
+    return [claim for _, claim in scored[:k]]
+
+
+def best_memory_claim(
+    question: str,
+    memory: ArchitectureMemory,
+) -> ArchitectureClaim | None:
+    claims = top_memory_claims(question, memory, k=1)
+    return claims[0] if claims else None
